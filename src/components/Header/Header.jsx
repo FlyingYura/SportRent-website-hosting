@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart, faUser, faSignInAlt, faUserPlus } from '@fortawesome/free-solid-svg-icons';
-import styles from './Header.module.css';
+import styles from './header.module.css';
 import { auth, db } from '../../firebase';
 import { signOut } from 'firebase/auth';
 import { useState, useEffect } from 'react';
