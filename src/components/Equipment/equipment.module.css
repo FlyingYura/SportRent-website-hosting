@@ -462,6 +462,17 @@
 .noResults p {
   color: #666;
 }
+
+.controlGroup {
+  margin-bottom: 15px;
+}
+
+.controlGroup label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #555;
+}
 #category-filter {
   width: 100%;
   padding: 8px;

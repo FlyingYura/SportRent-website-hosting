@@ -84,6 +84,7 @@ const RentalsPage = () => {
                     <span>{rental.startDate} - {rental.endDate}</span>
                   </div>
                   <div className={styles.quantityControl}>
+                    <span>Кількість товару: {rental.quantity}</span>
                     <span>Кількість днів: {rental.days}</span>
                   </div>
                 </div>

@@ -8,17 +8,18 @@ import styles from './equipment.module.css';
 const RentalModal = ({ isOpen, item, onClose }) => {
   const [user] = useAuthState(auth);
   const [days, setDays] = useState(1);
+  const [quantity, setQuantity] = useState(1);
   const [totalPrice, setTotalPrice] = useState(0);
-  const [availableCount] = useState(Math.floor(Math.random() * 10) + 1);
+  const [availableCount, setAvailableCount] = useState(Math.floor(Math.random() * 10) + 1);
   const [alreadyInCart, setAlreadyInCart] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (item) {
-      setTotalPrice(days * item.price);
+      setTotalPrice(days * item.price * quantity);
       checkIfInCart();
     }
-  }, [days, item, user]);
+  }, [days, quantity, item, user]);
 
   const checkIfInCart = async () => {
     if (user && item) {
@@ -44,6 +45,11 @@ const RentalModal = ({ isOpen, item, onClose }) => {
     setDays(value);
   };
 
+  const handleQuantityChange = (e) => {
+    const value = Math.max(1, Math.min(availableCount, parseInt(e.target.value) || 1));
+    setQuantity(value);
+  };
+
   const handleConfirm = async () => {
     if (!user) {
       alert('Будь ласка, увійдіть в систему, щоб додавати товари до кошика');
@@ -62,6 +68,7 @@ const RentalModal = ({ isOpen, item, onClose }) => {
       name: item.name,
       image: item.image,
       days: days,
+      quantity: quantity,
       price: totalPrice,
       startDate: new Date().toLocaleDateString(),
       endDate: new Date(Date.now() + days * 24 * 60 * 60 * 1000).toLocaleDateString()
@@ -135,16 +142,33 @@ const RentalModal = ({ isOpen, item, onClose }) => {
         </div>
 
         <div className={styles.rentalControls}>
-          <label htmlFor="rental-days">Кількість днів:</label>
-          <input 
-            type="number" 
-            id="rental-days" 
-            value={days} 
-            min="1" 
-            onChange={handleDaysChange}
-            className={styles.daysInput}
-            disabled={alreadyInCart} 
-          />
+          <div className={styles.controlGroup}>
+            <label htmlFor="rental-days">Кількість днів:</label>
+            <input 
+              type="number" 
+              id="rental-days" 
+              value={days} 
+              min="1" 
+              onChange={handleDaysChange}
+              className={styles.daysInput}
+              disabled={alreadyInCart} 
+            />
+          </div>
+          
+          <div className={styles.controlGroup}>
+            <label htmlFor="rental-quantity">Кількість товару:</label>
+            <input 
+              type="number" 
+              id="rental-quantity" 
+              value={quantity} 
+              min="1" 
+              max={availableCount}
+              onChange={handleQuantityChange}
+              className={styles.daysInput}
+              disabled={alreadyInCart || availableCount <= 0}
+            />
+          </div>
+          
           <div className={styles.detailRow}>
             <span className={styles.detailLabel}>Загальна ціна:</span>
             <span className={styles.totalPrice}>{totalPrice} грн</span>
