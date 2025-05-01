@@ -69,7 +69,7 @@ const RentalModal = ({ isOpen, item, onClose }) => {
       image: item.image,
       days: days,
       quantity: quantity,
-      basePrice: item.price, // Додаємо базову ціну
+      basePrice: item.price, 
       price: days * item.price * quantity,
       startDate: new Date().toLocaleDateString(),
       endDate: new Date(Date.now() + days * 24 * 60 * 60 * 1000).toLocaleDateString()
