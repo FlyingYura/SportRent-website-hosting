@@ -7,11 +7,9 @@ const admin = require('firebase-admin');
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
-// Ініціалізація Firebase Admin
 const serviceAccount = require('./serviceAccountKey.json');
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
@@ -19,7 +17,6 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-// Перевірка JWT токена
 const authenticateJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
   
@@ -39,37 +36,31 @@ const authenticateJWT = (req, res, next) => {
   }
 };
 
-// Базовий маршрут для перевірки роботи сервера
 app.get('/', (req, res) => {
   res.send('Сервер платформи оренди спортивного обладнання працює!');
 });
 
-// Запуск сервера
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Сервер запущено на порті ${PORT}`);
 });
 
-// Реєстрація нового користувача
 app.post('/register', async (req, res) => {
     try {
       const { email, password, name } = req.body;
       
-      // Створення користувача в Firebase Authentication
       const userRecord = await admin.auth().createUser({
         email,
         password,
         displayName: name
       });
       
-      // Створення запису користувача в Firestore
       await db.collection('users').doc(userRecord.uid).set({
-        name,
+        name, 
         email,
         createdAt: admin.firestore.FieldValue.serverTimestamp()
       });
       
-      // Генерація JWT токена
       const token = jwt.sign(
         { uid: userRecord.uid, email },
         process.env.JWT_SECRET,
@@ -82,13 +73,10 @@ app.post('/register', async (req, res) => {
     }
   });
   
-  // Логін користувача
   app.post('/login', async (req, res) => {
     try {
       const { email, password } = req.body;
       
-      // У реальному додатку тут буде перевірка через Firebase Auth
-      // Для спрощення просто перевіряємо наявність користувача в Firestore
       const snapshot = await db.collection('users')
         .where('email', '==', email)
         .limit(1)
@@ -101,7 +89,6 @@ app.post('/register', async (req, res) => {
       const userDoc = snapshot.docs[0];
       const user = userDoc.data();
       
-      // Генерація JWT токена
       const token = jwt.sign(
         { uid: userDoc.id, email },
         process.env.JWT_SECRET,
@@ -114,7 +101,6 @@ app.post('/register', async (req, res) => {
     }
   });
   
-  // Отримання профілю користувача
   app.get('/profile', authenticateJWT, async (req, res) => {
     try {
       const userDoc = await db.collection('users').doc(req.user.uid).get();
@@ -129,7 +115,6 @@ app.post('/register', async (req, res) => {
     }
   });
 
-  // Отримання оренд користувача (з фільтрацією по ціні)
 app.get('/rentals', authenticateJWT, async (req, res) => {
     try {
       const { minPrice, maxPrice } = req.query;
@@ -159,7 +144,6 @@ app.get('/rentals', authenticateJWT, async (req, res) => {
     }
   });
   
-  // Додавання нової оренди
   app.post('/rentals', authenticateJWT, async (req, res) => {
     try {
       const { equipmentId, name, price, image, startDate, endDate, days } = req.body;
@@ -182,7 +166,6 @@ app.get('/rentals', authenticateJWT, async (req, res) => {
     }
   });
   
-  // Видалення оренди
   app.delete('/rentals/:id', authenticateJWT, async (req, res) => {
     try {
       const rentalId = req.params.id;

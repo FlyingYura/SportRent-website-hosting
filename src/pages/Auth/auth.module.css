@@ -98,6 +98,45 @@
     text-decoration: none;
     font-weight: 600;
   }
+
+.authDivider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  color: var(--dark-text);
+  font-weight: 500;
+}
+
+.authDivider::before,
+.authDivider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #ddd;
+}
+
+.authDivider::before {
+  margin-right: 10px;
+}
+
+.authDivider::after {
+  margin-left: 10px;
+}
+
+.googleButton {
+  background-color: var(--accent-color);
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%; 
+  margin: 0 auto; 
+}
+.googleButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
   
   .authLink:hover {
     text-decoration: underline;

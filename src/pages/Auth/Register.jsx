@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebase';
+import { auth, signInWithGoogle } from '../../firebase';
 import styles from './auth.module.css';
 
 const Register = () => {
@@ -24,6 +24,19 @@ const Register = () => {
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
+      navigate('/');
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      await signInWithGoogle();
       navigate('/');
     } catch (err) {
       setError(err.message);
@@ -74,6 +87,17 @@ const Register = () => {
             {loading ? 'Завантаження...' : 'Зареєструватись'}
           </button>
         </form>
+        
+        <div className={styles.authDivider}>або</div>
+        
+        <button 
+          onClick={handleGoogleSignIn} 
+          disabled={loading} 
+          className={`${styles.authButton} ${styles.googleButton}`}
+        >
+          Увійти через Google
+        </button>
+        
         <div className={styles.authFooter}>
           Вже маєте акаунт? <Link to="/login" className={styles.authLink}>Увійти</Link>
         </div>

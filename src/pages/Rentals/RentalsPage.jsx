@@ -40,7 +40,47 @@ const RentalsPage = () => {
     }
   };
 
-  const totalPrice = rentals.reduce((sum, item) => sum + item.price, 0);
+  const handleQuantityChange = async (index, newQuantity) => {
+    if (!user || newQuantity < 1) return;
+    
+    const newRentals = [...rentals];
+    newRentals[index] = {
+      ...newRentals[index],
+      quantity: newQuantity,
+      price: newRentals[index].basePrice * newRentals[index].days * newQuantity
+    };
+    
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        cart: newRentals
+      });
+      setRentals(newRentals);
+    } catch (error) {
+      console.error('Error updating cart:', error);
+    }
+  };
+
+  const handleDaysChange = async (index, newDays) => {
+    if (!user || newDays < 1) return;
+    
+    const newRentals = [...rentals];
+    newRentals[index] = {
+      ...newRentals[index],
+      days: newDays,
+      price: newRentals[index].basePrice * newDays * newRentals[index].quantity
+    };
+    
+    try {
+      await updateDoc(doc(db, 'users', user.uid), {
+        cart: newRentals
+      });
+      setRentals(newRentals);
+    } catch (error) {
+      console.error('Error updating cart:', error);
+    }
+  };
+
+  const totalPrice = rentals.reduce((sum, item) => sum + (item.price || 0), 0);
 
   if (!user) {
     return (
@@ -81,11 +121,30 @@ const RentalsPage = () => {
                   </div>
                   <div className={styles.rentalPeriod}>
                     <span>Період оренди:</span>
-                    <span>{rental.startDate} - {rental.endDate}</span>
+                    <input
+                      type="number"
+                      min="1"
+                      value={rental.days || 1}
+                      onChange={(e) => handleDaysChange(index, parseInt(e.target.value) || 1)}
+                      className={styles.daysInput}
+                    />
+                    <span>днів</span>
                   </div>
                   <div className={styles.quantityControl}>
-                    <span>Кількість товару: {rental.quantity}</span>
-                    <span>Кількість днів: {rental.days}</span>
+                    <button 
+                      onClick={() => handleQuantityChange(index, (rental.quantity || 1) - 1)}
+                      disabled={(rental.quantity || 1) <= 1}
+                      className={styles.quantityBtn}
+                    >
+                      -
+                    </button>
+                    <span>{rental.quantity || 1}</span>
+                    <button 
+                      onClick={() => handleQuantityChange(index, (rental.quantity || 1) + 1)}
+                      className={styles.quantityBtn}
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
                 <div className={styles.itemActions}>
@@ -105,7 +164,9 @@ const RentalsPage = () => {
             <div className={styles.summaryItems}>
               {rentals.map((rental, index) => (
                 <div key={index} className={styles.summaryItem}>
-                  <span className={styles.summaryItemName}>{rental.name}</span>
+                  <span className={styles.summaryItemName}>
+                    {rental.name} ({rental.quantity || 1} шт. × {rental.days || 1} дн.)
+                  </span>
                   <span className={styles.summaryItemPrice}>{rental.price} грн</span>
                 </div>
               ))}
